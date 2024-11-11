@@ -1,0 +1,3 @@
+[submodule "path/to/your/dataset/folder"]
+	path = path/to/your/dataset/folder
+	url = https://github.com/VikramShenoy97/Human-Segmentation-Dataset.git
