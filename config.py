@@ -24,5 +24,7 @@ betas = (0.5, 0.999)
 l1Lambda = 100
 # training loop configuration 
 
+device = "cuda"
+
 if training:
     print(f"Training ID: {trainingID}")
