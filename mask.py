@@ -11,6 +11,8 @@ model.load_state_dict(torch.load(modelPath, weights_only=True))
 model = model.to(device)
 # loading the model 
 
+model.eval()
+
 transforms = Compose([
             Resize((256, 256)),
             ToTensor(),
@@ -51,7 +53,8 @@ def getMask(img) -> torch.Tensor:
     image = transforms(img).to(device)
     dimensions = tuple(reversed(img.size))
 
-    mask = model(image.unsqueeze(0))
+    with torch.no_grad():
+        mask = model(image.unsqueeze(0))
     
     if tuple(mask.shape[2:]) != dimensions:
         mask = torch.nn.functional.interpolate(mask, dimensions, mode="bicubic")
