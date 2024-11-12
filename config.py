@@ -2,7 +2,7 @@ from uuid import uuid4
 import os
 
 trainingID = str(uuid4())
-training = False
+training = True
 # training conigurations 
 
 savePath = os.path.join("saves", trainingID)
@@ -19,7 +19,7 @@ savedGenerator = ""
 
 epochs = 100
 lr = 2e-4
-batchSize = 32
+batchSize = 10
 betas = (0.5, 0.999)
 l1Lambda = 100
 generatorLRDecay = 0.999
@@ -34,7 +34,7 @@ testFeaturePath = "test dataset/inputImage"
 testTargetPath = "test dataset/outputImage"
 # defining paths to data 
 
-resolution = (128, 128) 
+resolution = (256, 256) 
 # image resolution 
 
 decayEvery = 2

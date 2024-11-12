@@ -33,36 +33,49 @@ trainLoader = getDataLoader(config.trainingFeaturePath, config.trainingTargetPat
 testLoader = getDataLoader(config.testFeaturePath, config.testTargetPath, config.resolution, config.batchSize)
 # initializing data loaders 
 
+genScaler = torch.GradScaler(config.device)
+discScaler = torch.GradScaler(config.device)
+
+
 def step(x:torch.Tensor, y:torch.Tensor) -> tuple[float, float]:
-    generatedImage = generator.forward(x)
+    with torch.autocast(config.device, torch.float16):
+        generatedImage = generator.forward(x)
 
-    discReal = discriminator.forward(x, y)
-    discFake = discriminator.forward(x, generatedImage.detach())
+        discReal = discriminator.forward(x, y)
+        discFake = discriminator.forward(x, generatedImage.detach())
 
-    zeroNoise = torch.zeros_like(discFake) + (torch.rand_like(discFake) * 0.05)
-    oneNoise = torch.ones_like(discReal) - (torch.rand_like(discReal) * 0.05)
+        zeroNoise = torch.zeros_like(discFake) + (torch.rand_like(discFake) * 0.05)
+        oneNoise = torch.ones_like(discReal) - (torch.rand_like(discReal) * 0.05)
 
-    discLoss = (bce(discReal, oneNoise) + bce(discFake, zeroNoise))/2
+        discLoss = (bce(discReal, oneNoise) + bce(discFake, zeroNoise))/2
     # calculating the loss of discriminator 
 
     discriminator.zero_grad()
     discOptim.zero_grad()
-    discLoss.backward()
-    discOptim.step()
+    discScaler.scale(discLoss).backward()
+    discScaler.step(discOptim)
+    discScaler.update()
 
-    criticLoss = discriminator.forward(x, generatedImage)
-    l1Loss = l1(generatedImage, y)
-    genLoss = criticLoss + (config.l1Lambda * l1Loss)
-    # calculating generator loss 
+    with torch.autocast(config.device, torch.float16):
+        criticLoss = discriminator.forward(x, generatedImage)
+        criticLoss = bce(criticLoss, oneNoise)
+        l1Loss = l1(generatedImage, y)
+        genLoss = criticLoss + (config.l1Lambda * l1Loss)
+        # calculating generator loss 
 
     generator.zero_grad()
     generatorOptim.zero_grad()
-    genLoss.backward()
-    generatorOptim.step()
+    genScaler.scale(genLoss).backward()
+    genScaler.step(generatorOptim)
+    genScaler.update()
 
     return genLoss.item(), discLoss.item()
 
 def train():
+    if not config.training:
+        print("Training mode is disabled")
+        return
+    
     for epoch in range(1, config.epochs+1):
         generator.train()
         discriminator.train()
@@ -75,7 +88,7 @@ def train():
             genLoss += genLoopLoss / len(trainLoader)
             discLoss += discLoopLoss / len(trainLoader)
 
-            loader.set_postfix({"genLoss": genLoss, "discLoss": discLoss, "lrG":schedulerG.get_lr(), "lrD": schedulerD.get_lr()})
+            loader.set_postfix({"genLoss": genLoss, "discLoss": discLoss, "lrG":schedulerG.get_last_lr()[-1], "lrD": schedulerD.get_last_lr()[-1]})
 
         if epoch % config.decayEvery == 0:
             schedulerG.step()
@@ -88,9 +101,11 @@ def train():
             # saving models every saveEvery epochs
 
         for x, y in testLoader:
+            generator.eval()
+            discriminator.eval()
             x = x.to(config.device)
             image = generator.forward(x)
-            saveImage(image, config.previewPath, f"preview_{epoch}")
+            saveImage(image, config.previewPath, epoch)
             break
             # testing the models on the test set
 
