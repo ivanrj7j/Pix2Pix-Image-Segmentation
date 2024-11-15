@@ -1,4 +1,0 @@
-[submodule "Human-Segmentation-Dataset"]
-	path = Human-Segmentation-Dataset
-	url = https://github.com/VikramShenoy97/Human-Segmentation-Dataset.git
-	ignore = dirty
