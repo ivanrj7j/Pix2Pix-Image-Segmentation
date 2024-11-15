@@ -3,6 +3,8 @@ import os
 import torch
 from PIL import Image
 import torchvision.transforms as transforms
+import albumentations as A
+import numpy as np
 
 class SegmentationDataset(Dataset):
     def __init__(self, featurePath:str, targetPath:str, resolution:tuple[int, int]=(256, 256)) -> None:
@@ -20,12 +22,28 @@ class SegmentationDataset(Dataset):
         self.resolution = resolution
         # initializing the resolution
 
-        self.trans = transforms.Compose([
+        self.trans1 = transforms.Compose([
             transforms.Resize(self.resolution),
+            np.array
+        ])
+        # transformations to the image 
+
+        self.trans2 = A.Compose([
+            # Geometric transformations (applied to both image and mask)
+            A.HorizontalFlip(p=0.2),
+            A.VerticalFlip(p=0.2),
+            A.Rotate(limit=25, p=0.65),
+            A.RandomBrightnessContrast(),
+            A.RandomFog(p=0.3),
+            A.MotionBlur(p=0.1),
+            A.GaussianBlur(p=0.1),
+            A.GaussNoise((0, 0.3))
+        ], additional_targets={'mask': 'mask'})  
+
+        self.trans3 = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize(0.5, 0.5, 0.5)
         ])
-        # transformations to the image 
 
     def __len__(self) -> int:
         return len(self.featureImages)
@@ -38,9 +56,16 @@ class SegmentationDataset(Dataset):
         featureImage = Image.open(featureImagePath).convert("RGB")
         targetImage = Image.open(targetImagePath).convert("L")
 
-        featureImage = self.trans(featureImage)
-        targetImage = self.trans(targetImage)
+        featureImage = self.trans1(featureImage)
+        targetImage = self.trans1(targetImage)
         # applying the transformations to the images
+
+        augmented = self.trans2(image=featureImage, mask=targetImage)
+        featureImage = augmented['image']
+        targetImage = augmented['mask']
+
+        featureImage = self.trans3(featureImage)
+        targetImage = self.trans3(targetImage)
 
         return featureImage, targetImage
     
@@ -54,8 +79,8 @@ def getDataLoader(featurePath:str, targetPath:str, resolution:tuple[int, int]=(2
 if __name__ == "__main__":
     from torchvision.utils import save_image
 
-    targetPath = "Human-Segmentation-Dataset/Ground_Truth"
-    featurePath = "Human-Segmentation-Dataset/Training_Images"
+    featurePath = "testData/images"
+    targetPath = "testData/masks"
 
     loader = getDataLoader(featurePath, targetPath)
 
@@ -67,4 +92,4 @@ if __name__ == "__main__":
 
         save_image(x, "testFeature.png")
         save_image(y, "testTarget.png")
-        pass
+        break
