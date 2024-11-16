@@ -1,11 +1,9 @@
 from torch.utils.data import Dataset, DataLoader
 import os
 import torch
-from PIL import Image
 import torchvision.transforms as transforms
 from albumentations.pytorch.transforms import ToTensorV2
 import albumentations as A
-import numpy as np
 import cv2
 
 class SegmentationDataset(Dataset):
