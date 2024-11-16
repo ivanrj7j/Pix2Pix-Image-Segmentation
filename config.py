@@ -2,7 +2,7 @@ from uuid import uuid4
 import os
 
 trainingID = str(uuid4())
-training = True
+training = False
 # training conigurations 
 
 savePath = os.path.join("saves", trainingID)
@@ -28,17 +28,17 @@ discriminatorLRDecay = 0.99
 
 device = "cuda"
 
-trainingFeaturePath = "Human-Segmentation-Dataset/Training_Images"
-trainingTargetPath = "Human-Segmentation-Dataset/Ground_Truth"
-testFeaturePath = "test dataset/inputImage"
-testTargetPath = "test dataset/outputImage"
+trainingFeaturePath = ""
+trainingTargetPath = ""
+testFeaturePath = ""
+testTargetPath = ""
 # defining paths to data 
 
 resolution = (256, 256) 
 # image resolution 
 
 decayEvery = 2
-saveEvery = 5
+saveEvery = 4
 
 if training:
     print(f"Training ID: {trainingID}")

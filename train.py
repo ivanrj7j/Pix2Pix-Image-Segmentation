@@ -105,6 +105,7 @@ def train():
             discriminator.eval()
             x = x.to(config.device)
             image = generator.forward(x)
+            saveImage(x, config.previewPath, f"inp_{epoch}")
             saveImage(image, config.previewPath, epoch)
             break
             # testing the models on the test set

@@ -166,3 +166,4 @@ cython_debug/
 saves
 preview
 data/
+*.zip
