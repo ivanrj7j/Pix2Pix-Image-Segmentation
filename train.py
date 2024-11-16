@@ -83,7 +83,7 @@ def train():
         loader = tqdm(trainLoader, f"[{epoch}/{config.epochs}]", len(trainLoader))
         genLoss, discLoss = 0, 0
         for x, y in loader:
-            x, y = x.to(config.device), y.to(config.device)
+            x, y = x.to(config.device), y.unsqueeze(1).to(config.device)
             genLoopLoss, discLoopLoss = step(x, y)
             genLoss += genLoopLoss / len(trainLoader)
             discLoss += discLoopLoss / len(trainLoader)
@@ -100,7 +100,7 @@ def train():
             saveModel(discriminator, config.savePath, f"disc_{epoch}")
             # saving models every saveEvery epochs
 
-        for x, y in testLoader:
+        for x, _ in testLoader:
             generator.eval()
             discriminator.eval()
             x = x.to(config.device)
