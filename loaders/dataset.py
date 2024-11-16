@@ -37,7 +37,7 @@ class SegmentationDataset(Dataset):
             A.MotionBlur(p=0.1),
             A.GaussianBlur(p=0.1),
             A.GaussNoise((0, 0.3)),
-            A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5), max_pixel_value=1),
+            A.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5)),
             ToTensorV2(),
         ], additional_targets={'mask': 'mask'})  
 
@@ -53,14 +53,14 @@ class SegmentationDataset(Dataset):
         targetImage = cv2.resize(cv2.imread(targetImagePath), self.resolution)
 
         featureImage = cv2.cvtColor(featureImage, cv2.COLOR_BGR2RGB)
-        targetImage = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
+        targetImage = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)/255
         # applying the transformations to the images
 
         augmented = self.trans2(image=featureImage, mask=targetImage)
         featureImage = augmented['image']
         targetImage = augmented['mask']
 
-        return featureImage, targetImage
+        return featureImage, (targetImage*2)-1
     
 
 def getDataLoader(featurePath:str, targetPath:str, resolution:tuple[int, int]=(256, 256), batchSize:int=32):

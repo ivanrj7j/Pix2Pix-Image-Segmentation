@@ -2,7 +2,7 @@ from uuid import uuid4
 import os
 
 trainingID = str(uuid4())
-training = False
+training = True
 # training conigurations 
 
 savePath = os.path.join("saves", trainingID)
@@ -13,8 +13,8 @@ os.makedirs(savePath, exist_ok=True)
 os.makedirs(previewPath, exist_ok=True)
 # Create directories if they don't exist
 
-savedDiscriminator = ""
-savedGenerator = ""
+savedDiscriminator = "saves/fcf88d77-c866-46e8-a33c-9b328392e877/model_dis_final.pth"
+savedGenerator = "saves/fcf88d77-c866-46e8-a33c-9b328392e877/model_gen_final.pth"
 # save path of the discriminator and generator to load from 
 
 epochs = 100
@@ -28,10 +28,10 @@ discriminatorLRDecay = 0.99
 
 device = "cuda"
 
-trainingFeaturePath = ""
-trainingTargetPath = ""
-testFeaturePath = ""
-testTargetPath = ""
+trainingFeaturePath = "data/images"
+trainingTargetPath = "data/masks"
+testFeaturePath = "testData/images"
+testTargetPath = "testData/masks"
 # defining paths to data 
 
 resolution = (256, 256) 
