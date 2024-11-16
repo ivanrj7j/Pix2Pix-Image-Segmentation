@@ -53,14 +53,14 @@ class SegmentationDataset(Dataset):
         targetImage = cv2.resize(cv2.imread(targetImagePath), self.resolution)
 
         featureImage = cv2.cvtColor(featureImage, cv2.COLOR_BGR2RGB)
-        targetImage = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)/255
+        targetImage = cv2.cvtColor(targetImage, cv2.COLOR_BGR2GRAY)
         # applying the transformations to the images
 
         augmented = self.trans2(image=featureImage, mask=targetImage)
         featureImage = augmented['image']
         targetImage = augmented['mask']
 
-        return featureImage, (targetImage*2)-1
+        return featureImage, (targetImage/127.5)-1
     
 
 def getDataLoader(featurePath:str, targetPath:str, resolution:tuple[int, int]=(256, 256), batchSize:int=32):
