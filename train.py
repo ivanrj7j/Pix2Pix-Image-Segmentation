@@ -14,7 +14,7 @@ import config
 from tqdm import tqdm
 # importing non torch stuff 
 
-generator, discriminator = loadModels(config.savedGenerator, config.savedDiscriminator, config.device, config.generatorFromParent)
+generator, discriminator = loadModels(config.savedGenerator, config.savedDiscriminator, config.device)
 # loading models 
 
 generatorOptim = Adam(generator.parameters(), config.lr, config.betas)
