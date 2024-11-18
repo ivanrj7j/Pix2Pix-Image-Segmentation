@@ -1,5 +1,6 @@
 from models.generator import Generator
 import torch.nn as nn
+import torch
 
 class ResBlock(nn.Module):
     def __init__(self, channels:int, dropout:bool=True, *args, **kwargs) -> None:
@@ -58,3 +59,15 @@ class Res2Pix(Generator):
         out = super().forward(x)
         out = self.resBlocks.forward(out)
         return self.finalBlock.forward(out)
+    
+    def loadFromParent(self, path:str):
+        """
+        Load the pretrained model from a given path.
+        This method loads the pretrained weights from the parent model and initializes the weights of the current model.
+        
+        Keyword arguments:
+        path -- path to the pretrained model
+        Return: None
+        """
+        weights = torch.load(path, weights_only=True)
+        self.load_state_dict(weights, strict=False)
