@@ -13,9 +13,11 @@ os.makedirs(savePath, exist_ok=True)
 os.makedirs(previewPath, exist_ok=True)
 # Create directories if they don't exist
 
-savedDiscriminator = "saves/fcf88d77-c866-46e8-a33c-9b328392e877/model_dis_final.pth"
-savedGenerator = "saves/fcf88d77-c866-46e8-a33c-9b328392e877/model_gen_final.pth"
+savedDiscriminator = "saves/4bb3f5d0-29a5-4841-96d7-8fe58a3c3bdd/model_disc_36.pth"
+savedGenerator = "saves/4bb3f5d0-29a5-4841-96d7-8fe58a3c3bdd/model_gen_36.pth"
 # save path of the discriminator and generator to load from 
+generatorFromParent = True
+# this defines if the laoded weights is from Generator Model or it's child Res2Pix
 
 epochs = 100
 lr = 2e-4
