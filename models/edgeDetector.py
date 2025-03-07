@@ -1,12 +1,11 @@
 import torch
 
 class EdgeDetector:
-    def __init__(self, threshold: float = 50):
+    def __init__(self, threshold: float = 0.5):
         self.threshold = threshold
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x: shape (n, c, h, w)
-        print("Input shape:", x.shape)
 
         # Convert to grayscale if more than one channel.
         if x.shape[1] > 1:

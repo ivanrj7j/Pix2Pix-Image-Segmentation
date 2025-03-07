@@ -2,6 +2,7 @@ from torch.nn import Module
 from torch.nn import Sequential
 from torch.nn import ConvTranspose2d, Tanh, ReLU, LeakyReLU, Conv2d, BatchNorm2d, Dropout
 from torch import cat
+from models.edgeDetector import EdgeDetector
 
 
 class GenBlock(Module):
@@ -31,7 +32,7 @@ class GenBlock(Module):
 
 
 class Generator(Module):
-    def __init__(self, inChannels:int, outChannels:int=None, features:int=64, *args, **kwargs) -> None:
+    def __init__(self, inChannels:int, outChannels:int=None, features:int=64, edgeThreshold:float=0.3, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         """
         Generator model generates the desired output image.
@@ -41,6 +42,7 @@ class Generator(Module):
         inChannels -- number of channels of the input latent vector
         outChannels -- number of channels of the output image (default: inChannels)
         features -- the (base) number of features in the middle layers
+        edgeThreshold: float -- the threshold for detecting edges in the input image (default: 0.3)
         Return: None
         """
 
@@ -54,7 +56,7 @@ class Generator(Module):
 
 
         self.initDown = Sequential(
-            Conv2d(inChannels, features, 4, 2, 1, padding_mode="reflect"),
+            Conv2d(inChannels+1, features, 4, 2, 1, padding_mode="reflect"),
             LeakyReLU(0.2)
         )
 
@@ -84,7 +86,12 @@ class Generator(Module):
             Tanh()
         )
 
+        self.edgeDetector = EdgeDetector(edgeThreshold)
+
     def forward(self, x):
+        edges = self.edgeDetector.forward(x)
+        x = cat((x, edges), 1)  # concatenating the input image and the edge detection result
+
         d0 = self.initDown(x)
         d1 = self.down1(d0)
         d2 = self.down2(d1)

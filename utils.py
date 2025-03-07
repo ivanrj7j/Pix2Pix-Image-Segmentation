@@ -20,8 +20,8 @@ def saveImage(image:torch.Tensor, path:str, epoch:int|str):
 
     save_image(image, imagePath)
 
-def loadModels(generatorPath:str, discriminatorPath:str, device:str):
-    generator = Generator(3, 1)
+def loadModels(generatorPath:str, discriminatorPath:str, device:str, edgeThreshold:float):
+    generator = Generator(3, 1, edgeThreshold=edgeThreshold)
     discriminator = Discriminator(3, 1)
     # initializing generator and discriminator 
 
